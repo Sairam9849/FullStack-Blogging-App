@@ -1,35 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bloggingapp-deployment
+  name: blogging-app
+  namespace: webapps
+  labels:
+    app: blogging-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: bloggingapp
+      app: blogging-app
   template:
     metadata:
       labels:
-        app: bloggingapp
+        app: blogging-app
     spec:
       containers:
-        - name: bloggingapp
-          image: sairammuchintala/bloggingapp:latest  # Docker stage lo push chese image
+        - name: blogging-app
+          image: sairammuchintala/bloggingapp:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-      imagePullSecrets:
-        - name: regcred  # DockerHub secret (webapps namespace lo create chesi undali)
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: bloggingapp-ssvc
+  name: blogging-app-service
+  namespace: webapps
+  labels:
+    app: blogging-app
 spec:
+  type: LoadBalancer      # EKS lo external ELB kosam
   selector:
-    app: bloggingapp
+    app: blogging-app
   ports:
-    - protocol: TCP
-      port: 80        # external service port
-      targetPort: 8080  # containerPort
-  type: LoadBalancer
+    - name: http
+      port: 80            # external port
+      targetPort: 8080    # containerPort above
